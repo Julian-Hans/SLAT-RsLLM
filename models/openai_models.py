@@ -2,8 +2,14 @@ import math
 
 from .base_model import BaseModel
 import requests
-from langchain.chat_models import ChatOpenAI
-from langchain.schema import HumanMessage, AIMessage
+try:
+    from langchain_openai import ChatOpenAI
+except ImportError:
+    from langchain.chat_models import ChatOpenAI
+try:
+    from langchain_core.messages import HumanMessage, AIMessage
+except ImportError:
+    from langchain.schema import HumanMessage, AIMessage
 
 class OPENAIModel(BaseModel):
     def predict(self, query, source_prompt):
@@ -36,4 +42,12 @@ class GPT4Model(OPENAIModel):
     def load_model(self):
         model_kwargs = {'logprobs': True, 'top_logprobs': 5, "seed": 1}
         chat_model = ChatOpenAI(model="gpt-4-turbo-0613", temperature=self.temperature, max_tokens=10, api_key = self.api_key, model_kwargs=model_kwargs)
+        self.model = chat_model
+
+class GPT41NanoModel(OPENAIModel):
+    def load_model(self):
+        chat_model = ChatOpenAI(
+            model="gpt-4.1-nano", temperature=self.temperature, max_tokens=10,
+            api_key=self.api_key, logprobs=True, top_logprobs=5, seed=1,
+        )
         self.model = chat_model
